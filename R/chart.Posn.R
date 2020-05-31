@@ -6,19 +6,20 @@
 #' @param Portfolio string identifying the portfolio to chart
 #' @param Symbol string identifying the symbol to chart. If missing, the first symbol found in the \code{Portfolio} portfolio will be used
 #' @param Dates xts ISO 8601 style subsetting
+#' @param Prices xts Prices series to be used for plotting
 #' @param \dots any other passthru parameters to \code{\link[quantmod]{chart_Series}}
 #' @param TA a string defining a technical indicator function that will be applied to the chart, using \code{\link{eval}}
 #' @param env environment to locate market data in.  default .GlobalEnv
 #' @export
-chart.Posn <- function(Portfolio, Symbol, Dates = NULL, ...,TA=NULL,env=.GlobalEnv)
+chart.Posn <- function(Portfolio, Symbol, Dates = NULL, Prices = NULL, ...,TA=NULL,env=.GlobalEnv)
 { # @author Peter Carl, Brian Peterson
-    pname<-Portfolio
-    Portfolio<-getPortfolio(pname)
     if (missing(Symbol)) Symbol <- ls(Portfolio$symbols)[[1]]
     else Symbol <- Symbol[1]
     # FUNCTION
 
-    Prices=get(Symbol, envir=env)
+    if (is.null(Prices)) {
+        Prices=get(Symbol)
+    }
     if(!is.OHLC(Prices)) {
         if(hasArg(prefer)) prefer=eval(match.call(expand.dots=TRUE)$prefer) else prefer=NULL
         Prices=getPrice(Prices, prefer=prefer)
